@@ -1,0 +1,39 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: next-date-mysql
+    environment:
+      MYSQL_DATABASE: next-date
+      MYSQL_USER: next-date-user
+      MYSQL_PASSWORD: next-date-pass
+      MYSQL_ROOT_PASSWORD: next-date-root-pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  backend:
+    build: .
+    container_name: nextdate-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nextdate?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: nextdate_user
+      SPRING_DATASOURCE_PASSWORD: nextdate_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    # volumes:
+    #   - ./nextdate_uploads:/app/uploads
+
+#  frontend:
+#    build: ../frontend
+#    container_name: nextdate-frontend
+#    ports:
+#      - "3000:3000"
+#    depends_on:
+#      - backend
+
+volumes:
+  mysql_data:
