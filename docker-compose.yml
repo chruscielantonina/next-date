@@ -6,7 +6,7 @@ services:
       MYSQL_DATABASE: next-date
       MYSQL_USER: next-date-user
       MYSQL_PASSWORD: next-date-pass
-      MYSQL_ROOT_PASSWORD: next-date-root-pass
+      MYSQL_ROOT_PASSWORD: next-date-pass
     ports:
       - "3306:3306"
     volumes:
@@ -20,12 +20,10 @@ services:
     depends_on:
       - mysql
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/nextdate?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: nextdate_user
-      SPRING_DATASOURCE_PASSWORD: nextdate_pass
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/next-date?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: next-date-user
+      SPRING_DATASOURCE_PASSWORD: next-date-pass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
-    # volumes:
-    #   - ./nextdate_uploads:/app/uploads
 
 #  frontend:
 #    build: ../frontend
