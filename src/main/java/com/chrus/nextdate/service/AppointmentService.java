@@ -26,17 +26,31 @@ public class AppointmentService {
     }
 
     public Appointment createAppointment(Appointment appointment) {
-        if (appointment.getPreviousDate() != null && appointment.getTimePeriod() > 0 && appointment.getTimeUnit() != null) {
-
-            LocalDate calculatedNextDate = switch (appointment.getTimeUnit()) {
-                case DAYS -> appointment.getPreviousDate().plusDays(appointment.getTimePeriod());
-                case WEEKS -> appointment.getPreviousDate().plusWeeks(appointment.getTimePeriod());
-                case MONTHS -> appointment.getPreviousDate().plusMonths(appointment.getTimePeriod());
-                case YEARS -> appointment.getPreviousDate().plusYears(appointment.getTimePeriod());
-            };
-
-            appointment.setNextDate(calculatedNextDate);
+        if (appointment.getNextDate() == null) {
+            if (appointment.getPreviousDate() != null && appointment.getTimePeriod() > 0 && appointment.getTimeUnit() != null) {
+                LocalDate calculatedNextDate = switch (appointment.getTimeUnit()) {
+                    case DAYS -> appointment.getPreviousDate().plusDays(appointment.getTimePeriod());
+                    case WEEKS -> appointment.getPreviousDate().plusWeeks(appointment.getTimePeriod());
+                    case MONTHS -> appointment.getPreviousDate().plusMonths(appointment.getTimePeriod());
+                    case YEARS -> appointment.getPreviousDate().plusYears(appointment.getTimePeriod());
+                };
+                appointment.setNextDate(calculatedNextDate);
+            }
         }
+        return appointmentRepository.save(appointment);
+    }
+
+    public Appointment updateAppointment(UUID id, Appointment appointmentDetails) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Appointment not found with id: " + id));
+
+        appointment.setName(appointmentDetails.getName());
+        appointment.setPreviousDate(appointmentDetails.getPreviousDate());
+        appointment.setNextDate(appointmentDetails.getNextDate());
+        appointment.setTimePeriod(appointmentDetails.getTimePeriod());
+        appointment.setTimeUnit(appointmentDetails.getTimeUnit());
+        appointment.setNotificationEnabled(appointmentDetails.getNotificationEnabled());
+        appointment.setDaysBeforeNotification(appointmentDetails.getDaysBeforeNotification());
 
         return appointmentRepository.save(appointment);
     }
