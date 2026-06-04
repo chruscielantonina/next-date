@@ -23,14 +23,17 @@ public class Appointment {
     private LocalDate previousDate;
     private LocalDate nextDate;
     private int timePeriod;
+    @Enumerated(EnumType.STRING)
+    private TimeUnit timeUnit;
     private Boolean notificationEnabled;
     private int daysBeforeNotification;
 
-    public Appointment(String name, LocalDate previousDate, LocalDate nextDate, int timePeriod, Boolean notificationEnabled, int daysBeforeNotification) {
+    public Appointment(String name, LocalDate previousDate, LocalDate nextDate, int timePeriod, TimeUnit timeUnit,Boolean notificationEnabled, int daysBeforeNotification) {
         this.name = name;
         this.previousDate = previousDate;
         this.nextDate = nextDate;
         this.timePeriod = timePeriod;
+        this.timeUnit = timeUnit;
         this.notificationEnabled = notificationEnabled;
         this.daysBeforeNotification = daysBeforeNotification;
     }
