@@ -35,6 +35,11 @@ public class AppointmentController {
         return appointmentService.createAppointment(appointment);
     }
 
+    @PutMapping("/{id}")
+    public Appointment updateAppointment(@PathVariable UUID id, @RequestBody Appointment appointment) {
+        return appointmentService.updateAppointment(id, appointment);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAppointmentById(@PathVariable UUID id) {
