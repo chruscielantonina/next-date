@@ -5,9 +5,7 @@ import com.chrus.nextdate.service.AppointmentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -20,30 +18,26 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public List<Appointment> findAllAppointments() {
-        return appointmentService.findAllAppointments();
-    }
-
-    @GetMapping("/{id}")
-    public Optional<Appointment> findAppointmentById(@PathVariable UUID id) {
-        return appointmentService.findAppointmentById(id);
+    public List<Appointment> findAppointmentsByUserId(@RequestHeader("X-User-Id") UUID userId) {
+        return appointmentService.findAppointmentsByUserId(userId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Appointment createAppointment(@RequestBody Appointment appointment) {
-        return appointmentService.createAppointment(appointment);
+    public Appointment createAppointment(@RequestBody Appointment appointment, @RequestHeader("X-User-Id") UUID userId) {
+        return appointmentService.createAppointment(appointment, userId);
     }
 
     @PutMapping("/{id}")
-    public Appointment updateAppointment(@PathVariable UUID id, @RequestBody Appointment appointment) {
-        return appointmentService.updateAppointment(id, appointment);
+    public Appointment updateAppointment(@PathVariable UUID id,
+                                         @RequestBody Appointment appointment,
+                                         @RequestHeader("X-User-Id") UUID userId) {
+        return appointmentService.updateAppointment(id, appointment, userId);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAppointmentById(@PathVariable UUID id) {
-        appointmentService.deleteAppointmentById(id);
+    public void deleteAppointmentById(@PathVariable UUID id, @RequestHeader("X-User-Id") UUID userId) {
+        appointmentService.deleteAppointmentById(id, userId);
     }
-
 }
