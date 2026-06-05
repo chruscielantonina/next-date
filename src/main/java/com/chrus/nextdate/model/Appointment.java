@@ -1,9 +1,7 @@
 package com.chrus.nextdate.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -19,14 +17,27 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
     private String name;
+
     private LocalDate previousDate;
+
     private LocalDate nextDate;
+
     private int timePeriod;
+
     @Enumerated(EnumType.STRING)
     private TimeUnit timeUnit;
+
     private Boolean notificationEnabled;
+
     private int daysBeforeNotification;
+
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public Appointment(String name, LocalDate previousDate, LocalDate nextDate, int timePeriod, TimeUnit timeUnit,Boolean notificationEnabled, int daysBeforeNotification) {
         this.name = name;
