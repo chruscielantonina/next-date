@@ -1,36 +1,26 @@
 package com.chrus.nextdate.service;
 
 import com.chrus.nextdate.model.Appointment;
-import com.chrus.nextdate.model.User;
 import com.chrus.nextdate.repository.AppointmentRepository;
-import com.chrus.nextdate.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
-    private UserRepository userRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository) {
         this.appointmentRepository = appointmentRepository;
-        this.userRepository = userRepository;
     }
 
-    public List<Appointment> findAppointmentsByUserId(UUID userId) {
-        return appointmentRepository.findByUserId(userId);
+    public List<Appointment> findAllAppointments() {
+        return appointmentRepository.findAll();
     }
 
-
-    public Appointment createAppointment(Appointment appointment, UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        appointment.setUser(user);
-
+    public Appointment createAppointment(Appointment appointment) {
         if (appointment.getNextDate() == null) {
             if (appointment.getPreviousDate() != null && appointment.getTimePeriod() > 0 && appointment.getTimeUnit() != null) {
                 LocalDate calculatedNextDate = switch (appointment.getTimeUnit()) {
@@ -45,13 +35,9 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
-    public Appointment updateAppointment(UUID id, Appointment appointmentDetails, UUID userId) {
+    public Appointment updateAppointment(UUID id, Appointment appointmentDetails) {
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Appointment not found with id: " + id));
-
-        if (!appointment.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Unauthorized: You cannot modify someone else's appointment!");
-        }
 
         appointment.setName(appointmentDetails.getName());
         appointment.setPreviousDate(appointmentDetails.getPreviousDate());
@@ -64,14 +50,10 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
-    public void deleteAppointmentById(UUID id, UUID userId) {
-        Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Appointment not found with id: " + id));
-
-        if (!appointment.getUser().getId().equals(userId)) {
-            throw new RuntimeException("Unauthorized: You cannot delete someone else's appointment!");
+    public void deleteAppointmentById(UUID id) {
+        if (!appointmentRepository.existsById(id)) {
+            throw new RuntimeException("Appointment not found with id: " + id);
         }
-
         appointmentRepository.deleteById(id);
     }
 }

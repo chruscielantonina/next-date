@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/appointments")
+@CrossOrigin(origins = "*")
 public class AppointmentController {
     private final AppointmentService appointmentService;
 
@@ -18,26 +19,24 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public List<Appointment> findAppointmentsByUserId(@RequestHeader("X-User-Id") UUID userId) {
-        return appointmentService.findAppointmentsByUserId(userId);
+    public List<Appointment> findAllAppointments() {
+        return appointmentService.findAllAppointments();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Appointment createAppointment(@RequestBody Appointment appointment, @RequestHeader("X-User-Id") UUID userId) {
-        return appointmentService.createAppointment(appointment, userId);
+    public Appointment createAppointment(@RequestBody Appointment appointment) {
+        return appointmentService.createAppointment(appointment);
     }
 
     @PutMapping("/{id}")
-    public Appointment updateAppointment(@PathVariable UUID id,
-                                         @RequestBody Appointment appointment,
-                                         @RequestHeader("X-User-Id") UUID userId) {
-        return appointmentService.updateAppointment(id, appointment, userId);
+    public Appointment updateAppointment(@PathVariable UUID id, @RequestBody Appointment appointment) {
+        return appointmentService.updateAppointment(id, appointment);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAppointmentById(@PathVariable UUID id, @RequestHeader("X-User-Id") UUID userId) {
-        appointmentService.deleteAppointmentById(id, userId);
+    public void deleteAppointmentById(@PathVariable UUID id) {
+        appointmentService.deleteAppointmentById(id);
     }
 }
