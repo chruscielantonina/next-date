@@ -1,5 +1,6 @@
 package com.chrus.nextdate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,12 +34,12 @@ public class Appointment {
 
     private int daysBeforeNotification;
 
-//    @ToString.Exclude
-//    @EqualsAndHashCode.Exclude
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id", nullable = false)
-//    @JsonIgnore
-//    private User user;
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = true)
+    @JsonIgnore
+    private User user;
 
     public Appointment(String name, LocalDate previousDate, LocalDate nextDate, int timePeriod, TimeUnit timeUnit,Boolean notificationEnabled, int daysBeforeNotification) {
         this.name = name;
