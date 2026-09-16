@@ -11,6 +11,12 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pnext-date-pass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   backend:
     build: .
@@ -18,12 +24,14 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/next-date?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: next-date-user
       SPRING_DATASOURCE_PASSWORD: next-date-pass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    restart: on-failure
 
 #  frontend:
 #    build: ../frontend
