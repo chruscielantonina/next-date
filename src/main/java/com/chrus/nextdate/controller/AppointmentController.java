@@ -1,8 +1,10 @@
 package com.chrus.nextdate.controller;
 
 import com.chrus.nextdate.model.Appointment;
+import com.chrus.nextdate.model.User;
 import com.chrus.nextdate.service.AppointmentService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,8 +27,9 @@ public class AppointmentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Appointment createAppointment(@RequestBody Appointment appointment) {
-        return appointmentService.createAppointment(appointment);
+    public Appointment createAppointment(@RequestBody Appointment appointment,
+                                         @AuthenticationPrincipal User user) {
+        return appointmentService.createAppointment(appointment, user);
     }
 
     @PutMapping("/{id}")

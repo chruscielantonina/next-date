@@ -1,6 +1,7 @@
 package com.chrus.nextdate.service;
 
 import com.chrus.nextdate.model.Appointment;
+import com.chrus.nextdate.model.User;
 import com.chrus.nextdate.repository.AppointmentRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,8 @@ public class AppointmentService {
         return appointmentRepository.findAll();
     }
 
-    public Appointment createAppointment(Appointment appointment) {
+    public Appointment createAppointment(Appointment appointment, User user) {
+        appointment.setUser(user);
         if (appointment.getNextDate() == null) {
             if (appointment.getPreviousDate() != null && appointment.getTimePeriod() > 0 && appointment.getTimeUnit() != null) {
                 LocalDate calculatedNextDate = switch (appointment.getTimeUnit()) {
