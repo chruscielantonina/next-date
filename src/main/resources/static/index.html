@@ -1,246 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextDate - Your Appointment Assistant</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>NextDate - Panel Użytkownika</title>
+    <script>
+        if (!localStorage.getItem('jwtToken')) {
+            window.location.href = '/login.html';
+        }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/auth.js"></script>
+    <script src="/js/dashboard.js?v=2"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
 
-<div class="max-w-6xl mx-auto p-6">
-    <header class="mb-10 text-center">
-        <h1 class="text-4xl font-extrabold text-indigo-400 tracking-tight">NextDate 🗓️</h1>
-        <p class="text-slate-400 mt-2">Never miss another appointment</p>
-    </header>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div id="formContainer" class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800 h-fit transition-all duration-300">
-            <h2 id="formTitle" class="text-xl font-bold mb-4 text-slate-200">Add New Appointment</h2>
-
-            <form id="appointmentForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1">Appointment Name</label>
-                    <input type="text" id="name" required placeholder="e.g., Dentist, Hairdresser"
-                           class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1">Last Appointment Date</label>
-                    <input type="date" id="previousDate" required
-                           class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1">Next Appointment Date (Optional)</label>
-                    <input type="date" id="nextDate"
-                           class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                           placeholder="Leave empty to auto-calculate">
-                    <span class="text-[11px] text-slate-500 block mt-1">Leave empty to let the system auto-calculate based on interval.</span>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Interval</label>
-                        <input type="number" id="timePeriod" min="1" required placeholder="6"
-                               class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1">Unit</label>
-                        <select id="timeUnit" class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="DAYS">Days</option>
-                            <option value="WEEKS">Weeks</option>
-                            <option value="MONTHS" selected>Months</option>
-                            <option value="YEARS">Years</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="pt-2">
-                    <label class="inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="notificationEnabled" class="sr-only peer" checked>
-                        <div class="relative w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
-                        <span class="ms-3 text-sm font-medium text-slate-400">Notifications enabled</span>
-                    </label>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1">Remind me how many days before?</label>
-                    <input type="number" id="daysBeforeNotification" min="1" value="7"
-                           class="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                </div>
-
-                <div class="flex gap-2 pt-2">
-                    <button type="submit" id="submitBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl transition shadow-lg shadow-indigo-905/20">
-                        Save Appointment
-                    </button>
-                    <button type="button" id="cancelEditBtn" class="hidden bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2.5 px-4 rounded-xl transition">
-                        Cancel
-                    </button>
-                </div>
-            </form>
+<!-- NAWIGACJA -->
+<nav class="bg-slate-800 border-b border-slate-700 p-4 shadow-lg">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-bold text-indigo-400 tracking-wide">NextDate 📅</h1>
+        <div id="userInfo" class="flex items-center gap-4">
+            <span id="userName" class="text-sm font-medium text-slate-300">...</span>
+            <button onclick="logout()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm transition">
+                Wyloguj
+            </button>
         </div>
+    </div>
+</nav>
 
-        <div class="lg:col-span-2">
-            <h2 class="text-xl font-bold mb-4 text-slate-200">Your Upcoming Appointments</h2>
-            <div id="appointmentsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- KONTENER GŁÓWNY -->
+<main class="flex-grow max-w-6xl w-full mx-auto p-6 space-y-6 fade-in">
+
+    <!-- KARTA PROFILU -->
+    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg flex justify-between items-center">
+        <div>
+            <h2 class="text-xl font-bold text-white">Witaj w panelu, <span id="dashUserHeader" class="text-indigo-400"></span>!</h2>
+            <p class="text-sm text-slate-400" id="dashEmail"></p>
+        </div>
+        <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition shadow-lg shadow-indigo-600/30">
+            + Dodaj wizytę
+        </button>
+    </div>
+
+    <!-- LISTA WIZYT -->
+    <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg">
+        <h3 class="text-lg font-semibold mb-4 text-white">Twoje wizyty (Appointments)</h3>
+        <div id="appointmentsList" class="space-y-3">
+            <p class="text-slate-400 text-sm italic">Ładowanie wizyt...</p>
+        </div>
+    </div>
+
+</main>
+
+<!-- OKIENKO MODALNE (DODAWANIE / EDYCJA WIZYTY) -->
+<div id="appointmentModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 fade-in">
+    <div class="bg-slate-800 w-full max-w-md p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
+        <h3 id="modalTitle" class="text-xl font-bold text-white mb-4">Dodaj nową wizytę</h3>
+
+        <form id="appointmentForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+            <input type="hidden" id="appointmentId">
+
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Tytuł wizyty</label>
+                <input type="text" id="title" required placeholder="np. Dentysta, Przegląd auta" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
-        </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Data pierwszej wizyty</label>
+                <input type="date" id="appointmentDate" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-300">Co ile</label>
+                    <input type="number" id="intervalValue" min="1" value="1" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1 text-slate-300">Jednostka</label>
+                    <select id="timeUnit" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="MONTHS">Miesięcy</option>
+                        <option value="DAYS">Dni</option>
+                        <option value="YEARS">Lat</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 transition">Anuluj</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-medium transition shadow-lg shadow-indigo-600/30">Zapisz</button>
+            </div>
+        </form>
     </div>
 </div>
 
-<script>
-    const API_URL = '/api/appointments';
-    let editingId = null; // Stores ID of the appointment being edited
-
-    // Cache DOM elements
-    const form = document.getElementById('appointmentForm');
-    const formContainer = document.getElementById('formContainer');
-    const formTitle = document.getElementById('formTitle');
-    const submitBtn = document.getElementById('submitBtn');
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-
-    // 1. Fetch & Render
-    async function loadAppointments() {
-        try {
-            const response = await fetch(API_URL);
-            const appointments = await response.json();
-            const listContainer = document.getElementById('appointmentsList');
-            listContainer.innerHTML = '';
-
-            if(appointments.length === 0) {
-                listContainer.innerHTML = `<p class="text-slate-500 col-span-2 text-center py-10 bg-slate-900 rounded-2xl border border-dashed border-slate-800">No appointments scheduled yet.</p>`;
-                return;
-            }
-
-            appointments.forEach(app => {
-                listContainer.innerHTML += `
-                    <div class="bg-slate-900 p-5 rounded-2xl shadow-md border border-slate-800 flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-bold text-lg text-slate-100">${app.name}</h3>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-md bg-indigo-950 text-indigo-300 border border-indigo-900/50">
-                                    Every ${app.timePeriod} ${app.timeUnit === 'MONTHS' ? 'mo.' : app.timeUnit === 'DAYS' ? 'days' : app.timeUnit === 'WEEKS' ? 'wk.' : 'yr.'}
-                                </span>
-                            </div>
-                            <p class="text-xs text-slate-500 mb-4">Previous: ${app.previousDate}</p>
-
-                            <div class="bg-emerald-950/40 border border-emerald-900/30 text-emerald-400 p-3 rounded-xl mb-4 text-center">
-                                <span class="text-xs block uppercase tracking-wider font-semibold opacity-75">Next Appointment</span>
-                                <span class="text-xl font-black">${app.nextDate}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex justify-between items-center pt-3 border-t border-slate-800">
-                            <span class="text-xs text-slate-500">
-                                🔔 ${app.notificationEnabled ? `${app.daysBeforeNotification}d before` : 'Off'}
-                            </span>
-                            <div class="flex gap-3">
-                                <button onclick="startEdit(${JSON.stringify(app).replace(/"/g, '&quot;')})" class="text-indigo-400 hover:text-indigo-300 text-sm font-medium transition">
-                                    Edit
-                                </button>
-                                <button onclick="deleteAppointment('${app.id}')" class="text-red-400 hover:text-red-300 text-sm font-medium transition">
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        } catch (error) {
-            console.error("Error loading data:", error);
-        }
-    }
-
-    // 2. Form Submit (Handles both Create and Update)
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const nextDateValue = document.getElementById('nextDate').value;
-
-        const appointmentData = {
-            name: document.getElementById('name').value,
-            previousDate: document.getElementById('previousDate').value,
-            nextDate: nextDateValue ? nextDateValue : null, // Send null if empty so backend calculates it
-            timePeriod: parseInt(document.getElementById('timePeriod').value),
-            timeUnit: document.getElementById('timeUnit').value,
-            notificationEnabled: document.getElementById('notificationEnabled').checked,
-            daysBeforeNotification: parseInt(document.getElementById('daysBeforeNotification').value)
-        };
-
-        const url = editingId ? `${API_URL}/${editingId}` : API_URL;
-        const method = editingId ? 'PUT' : 'POST';
-
-        try {
-            const response = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(appointmentData)
-            });
-
-            if (response.ok) {
-                resetForm();
-                loadAppointments();
-            }
-        } catch (error) {
-            console.error("Error saving data:", error);
-        }
-    });
-
-    // 3. Switch Form to Edit Mode
-    window.startEdit = function(app) {
-        editingId = app.id;
-
-        // Populate form fields
-        document.getElementById('name').value = app.name;
-        document.getElementById('previousDate').value = app.previousDate;
-        document.getElementById('nextDate').value = app.nextDate || '';
-        document.getElementById('timePeriod').value = app.timePeriod;
-        document.getElementById('timeUnit').value = app.timeUnit;
-        document.getElementById('notificationEnabled').checked = app.notificationEnabled;
-        document.getElementById('daysBeforeNotification').value = app.daysBeforeNotification;
-
-        // Update UI styles to indicate Edit Mode
-        formTitle.innerText = "Edit Appointment";
-        formTitle.classList.add("text-indigo-400");
-        submitBtn.innerText = "Update Appointment";
-        submitBtn.classList.replace("bg-indigo-600", "bg-purple-600");
-        cancelEditBtn.classList.remove("hidden");
-        formContainer.classList.add("border-purple-500/40", "ring-1", "ring-purple-500/20");
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // 4. Cancel Edit Mode
-    function resetForm() {
-        editingId = null;
-        form.reset();
-        formTitle.innerText = "Add New Appointment";
-        formTitle.classList.remove("text-indigo-400");
-        submitBtn.innerText = "Save Appointment";
-        submitBtn.classList.replace("bg-purple-600", "bg-indigo-600");
-        cancelEditBtn.classList.add("hidden");
-        formContainer.classList.remove("border-purple-500/40", "ring-1", "ring-purple-500/20");
-    }
-    cancelEditBtn.addEventListener('click', resetForm);
-
-    // 5. Delete
-    window.deleteAppointment = async function(id) {
-        if (confirm("Delete this appointment?")) {
-            try {
-                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-                if (response.ok) {
-                    if (editingId === id) resetForm();
-                    loadAppointments();
-                }
-            } catch (error) {
-                console.error("Error deleting:", error);
-            }
-        }
-    }
-
-    // Initial Load
-    loadAppointments();
-</script>
 </body>
 </html>

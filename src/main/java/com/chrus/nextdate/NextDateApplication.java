@@ -11,3 +11,5 @@ public class NextDateApplication {
     }
 
 }
+
+//   docker exec -it next-date-mysql mysql -u next-date-user -pnext-date-pass next-date

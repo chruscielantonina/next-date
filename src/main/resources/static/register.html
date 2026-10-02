@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextDate - Rejestracja</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', redirectIfAuthenticated);
+    </script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4 font-sans">
+
+<div class="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-2xl border border-slate-700 fade-in">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-extrabold text-indigo-400 tracking-wide mb-1">NextDate 📅</h1>
+        <p class="text-sm text-slate-400">Utwórz nowe konto</p>
+    </div>
+
+    <div id="errorMessage" class="hidden mb-4 p-3 bg-red-500/20 border border-red-500 text-red-300 rounded-lg text-sm"></div>
+    <div id="successMessage" class="hidden mb-4 p-3 bg-emerald-500/20 border border-emerald-500 text-emerald-300 rounded-lg text-sm"></div>
+
+    <form onsubmit="handleRegister(event)" class="space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Imię</label>
+                <input type="text" id="firstName" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Nazwisko</label>
+                <input type="text" id="lastName" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1 text-slate-300">Adres Email</label>
+            <input type="email" id="email" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+        </div>
+        <div>
+            <label class="block text-sm font-medium mb-1 text-slate-300">Hasło</label>
+            <input type="password" id="password" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white focus:ring-2 focus:ring-indigo-500 outline-none transition">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 rounded-lg transition shadow-lg shadow-indigo-600/30">
+            Załóż konto
+        </button>
+    </form>
+
+    <p class="mt-6 text-center text-sm text-slate-400">
+        Masz już konto? <a href="/login.html" class="text-indigo-400 hover:underline font-medium">Zaloguj się</a>
+    </p>
+</div>
+
+</body>
+</html>
