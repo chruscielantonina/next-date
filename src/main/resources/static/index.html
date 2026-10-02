@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextDate - Panel Użytkownika</title>
+    <title>NextDate - Dashboard</title>
     <script>
         if (!localStorage.getItem('jwtToken')) {
             window.location.href = '/login.html';
@@ -12,83 +12,84 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/css/styles.css">
     <script src="/js/auth.js"></script>
-    <script src="/js/dashboard.js?v=2"></script>
+    <script src="/js/dashboard.js?v=4"></script>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
 
-<!-- NAWIGACJA -->
+<!-- NAVIGATION -->
 <nav class="bg-slate-800 border-b border-slate-700 p-4 shadow-lg">
     <div class="max-w-6xl mx-auto flex justify-between items-center">
         <h1 class="text-2xl font-bold text-indigo-400 tracking-wide">NextDate 📅</h1>
         <div id="userInfo" class="flex items-center gap-4">
             <span id="userName" class="text-sm font-medium text-slate-300">...</span>
             <button onclick="logout()" class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-sm transition">
-                Wyloguj
+                Log out
             </button>
         </div>
     </div>
 </nav>
 
-<!-- KONTENER GŁÓWNY -->
+<!-- MAIN CONTAINER -->
 <main class="flex-grow max-w-6xl w-full mx-auto p-6 space-y-6 fade-in">
 
-    <!-- KARTA PROFILU -->
+    <!-- PROFILE CARD -->
     <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg flex justify-between items-center">
         <div>
-            <h2 class="text-xl font-bold text-white">Witaj w panelu, <span id="dashUserHeader" class="text-indigo-400"></span>!</h2>
+            <h2 class="text-xl font-bold text-white">Welcome to your dashboard, <span id="dashUserHeader" class="text-indigo-400"></span>!</h2>
             <p class="text-sm text-slate-400" id="dashEmail"></p>
         </div>
         <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition shadow-lg shadow-indigo-600/30">
-            + Dodaj wizytę
+            + Add appointment
         </button>
     </div>
 
-    <!-- LISTA WIZYT -->
+    <!-- APPOINTMENTS LIST -->
     <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg">
-        <h3 class="text-lg font-semibold mb-4 text-white">Twoje wizyty (Appointments)</h3>
+        <h3 class="text-lg font-semibold mb-4 text-white">Your appointments</h3>
         <div id="appointmentsList" class="space-y-3">
-            <p class="text-slate-400 text-sm italic">Ładowanie wizyt...</p>
+            <p class="text-slate-400 text-sm italic">Loading appointments...</p>
         </div>
     </div>
 
 </main>
 
-<!-- OKIENKO MODALNE (DODAWANIE / EDYCJA WIZYTY) -->
+<!-- MODAL (ADD / EDIT APPOINTMENT) -->
 <div id="appointmentModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 fade-in">
     <div class="bg-slate-800 w-full max-w-md p-6 rounded-2xl border border-slate-700 shadow-2xl relative">
-        <h3 id="modalTitle" class="text-xl font-bold text-white mb-4">Dodaj nową wizytę</h3>
+        <h3 id="modalTitle" class="text-xl font-bold text-white mb-4">Add new appointment</h3>
 
         <form id="appointmentForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
             <input type="hidden" id="appointmentId">
 
             <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">Tytuł wizyty</label>
-                <input type="text" id="title" required placeholder="np. Dentysta, Przegląd auta" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
+                <label class="block text-sm font-medium mb-1 text-slate-300">Appointment title</label>
+                <input type="text" id="title" required maxlength="255" placeholder="e.g. Dentist, Car inspection" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
 
             <div>
-                <label class="block text-sm font-medium mb-1 text-slate-300">Data pierwszej wizyty</label>
+                <label class="block text-sm font-medium mb-1 text-slate-300">Date of last appointment</label>
                 <input type="date" id="appointmentDate" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-slate-300">Co ile</label>
+                    <label class="block text-sm font-medium mb-1 text-slate-300">Repeat every</label>
                     <input type="number" id="intervalValue" min="1" value="1" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1 text-slate-300">Jednostka</label>
+                    <label class="block text-sm font-medium mb-1 text-slate-300">Unit</label>
                     <select id="timeUnit" required class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="MONTHS">Miesięcy</option>
-                        <option value="DAYS">Dni</option>
-                        <option value="YEARS">Lat</option>
+                        <option value="DAYS">Days</option>
+                        <option value="WEEKS">Weeks</option>
+                        <option value="MONTHS" selected>Months</option>
+                        <option value="YEARS">Years</option>
                     </select>
                 </div>
             </div>
 
             <div class="flex justify-end gap-3 pt-4">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 transition">Anuluj</button>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-medium transition shadow-lg shadow-indigo-600/30">Zapisz</button>
+                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 transition">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white font-medium transition shadow-lg shadow-indigo-600/30">Save</button>
             </div>
         </form>
     </div>

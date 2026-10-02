@@ -3,6 +3,7 @@ package com.chrus.nextdate.controller;
 import com.chrus.nextdate.model.Appointment;
 import com.chrus.nextdate.model.User;
 import com.chrus.nextdate.service.AppointmentService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/appointments")
-@CrossOrigin(origins = "*")
 public class AppointmentController {
     private final AppointmentService appointmentService;
 
@@ -21,25 +21,28 @@ public class AppointmentController {
     }
 
     @GetMapping
-    public List<Appointment> findAllAppointments() {
-        return appointmentService.findAllAppointments();
+    public List<Appointment> findAllAppointments(@AuthenticationPrincipal User user) {
+        return appointmentService.findAllForUser(user);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Appointment createAppointment(@RequestBody Appointment appointment,
+    public Appointment createAppointment(@Valid @RequestBody Appointment appointment,
                                          @AuthenticationPrincipal User user) {
         return appointmentService.createAppointment(appointment, user);
     }
 
     @PutMapping("/{id}")
-    public Appointment updateAppointment(@PathVariable UUID id, @RequestBody Appointment appointment) {
-        return appointmentService.updateAppointment(id, appointment);
+    public Appointment updateAppointment(@PathVariable UUID id,
+                                         @Valid @RequestBody Appointment appointment,
+                                         @AuthenticationPrincipal User user) {
+        return appointmentService.updateAppointment(id, appointment, user);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAppointmentById(@PathVariable UUID id) {
-        appointmentService.deleteAppointmentById(id);
+    public void deleteAppointmentById(@PathVariable UUID id,
+                                      @AuthenticationPrincipal User user) {
+        appointmentService.deleteAppointmentById(id, user);
     }
 }

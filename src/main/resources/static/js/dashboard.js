@@ -6,14 +6,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 let appointmentsData = [];
 
+// [singular, plural]
 const UNIT_LABELS = {
-    DAYS: 'dni',
-    WEEKS: 'tygodni',
-    MONTHS: 'miesięcy',
-    YEARS: 'lat'
+    DAYS: ['day', 'days'],
+    WEEKS: ['week', 'weeks'],
+    MONTHS: ['month', 'months'],
+    YEARS: ['year', 'years']
 };
 
-// Zabezpieczenie przed XSS przy wstawianiu tekstu do innerHTML
+function unitLabel(unit, amount) {
+    const labels = UNIT_LABELS[unit];
+    if (!labels) return escapeHtml(unit || '');
+    return amount === 1 ? labels[0] : labels[1];
+}
+
+// Protects against XSS when inserting text into innerHTML
 function escapeHtml(value) {
     return String(value ?? '')
         .replace(/&/g, '&amp;')
@@ -23,7 +30,7 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
-// 1. Pobieranie danych profilu użytkownika
+// 1. Load the user's profile
 async function loadUserProfile() {
     const token = getToken();
 
@@ -32,7 +39,7 @@ async function loadUserProfile() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (!res.ok) throw new Error('Sesja wygasła');
+        if (!res.ok) throw new Error('Session expired');
 
         const user = await res.json();
 
@@ -49,7 +56,7 @@ async function loadUserProfile() {
     }
 }
 
-// 2. Pobieranie wizyt z bazy
+// 2. Load appointments from the backend
 async function loadAppointments() {
     const token = getToken();
     const container = document.getElementById('appointmentsList');
@@ -59,55 +66,56 @@ async function loadAppointments() {
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        if (!res.ok) throw new Error('Błąd pobierania wizyt');
+        if (!res.ok) throw new Error('Failed to load appointments');
 
         appointmentsData = await res.json();
         renderAppointments(appointmentsData);
     } catch (err) {
         if (container) {
-            container.innerHTML = `<p class="text-slate-400 text-sm italic">Brak wizyt do wyświetlenia.</p>`;
+            container.innerHTML = `<p class="text-slate-400 text-sm italic">No appointments to display.</p>`;
         }
     }
 }
 
-// 3. Renderowanie wizyt na stronie
+// 3. Render appointments on the page
 function renderAppointments(appointments) {
     const container = document.getElementById('appointmentsList');
     if (!container) return;
 
     if (!appointments || appointments.length === 0) {
-        container.innerHTML = `<p class="text-slate-400 text-sm italic">Brak wizyt do wyświetlenia.</p>`;
+        container.innerHTML = `<p class="text-slate-400 text-sm italic">No appointments to display.</p>`;
         return;
     }
 
     container.innerHTML = appointments.map(app => {
-        // Pola zgodne z encją Appointment.java
-        const title = escapeHtml(app.name || 'Brak tytułu');
-        const nextDate = escapeHtml(app.nextDate || 'Brak daty');
+        // Fields match the Appointment.java entity
+        const title = escapeHtml(app.name || 'Untitled');
+        const nextDate = escapeHtml(app.nextDate || 'No date');
         const previousDate = app.previousDate ? escapeHtml(app.previousDate) : null;
         const interval = app.timePeriod > 0 ? app.timePeriod : null;
-        const unit = UNIT_LABELS[app.timeUnit] || escapeHtml(app.timeUnit || '');
         const id = escapeHtml(app.id);
 
-        const intervalText = interval ? `Co ${interval} ${unit}` : 'Bez cyklu';
-        const previousText = previousDate ? ` • ostatnia: ${previousDate}` : '';
+        const intervalText = interval
+            ? `Every ${interval} ${unitLabel(app.timeUnit, interval)}`
+            : 'No repeat';
+        const previousText = previousDate ? ` • last: ${previousDate}` : '';
 
         return `
             <div class="p-4 rounded-xl border bg-slate-900/80 border-slate-700 flex justify-between items-center transition hover:border-indigo-500/50">
                 <div>
                     <h4 class="font-bold text-white">${title}</h4>
-                    <p class="text-sm text-indigo-300">📅 Następna: ${nextDate} (${intervalText})${previousText}</p>
+                    <p class="text-sm text-indigo-300">📅 Next: ${nextDate} (${intervalText})${previousText}</p>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="editAppointment('${id}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition">Edytuj</button>
-                    <button onclick="deleteAppointment('${id}')" class="text-xs bg-red-600/80 hover:bg-red-600 text-white px-3 py-1.5 rounded transition">Usuń</button>
+                    <button onclick="editAppointment('${id}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition">Edit</button>
+                    <button onclick="deleteAppointment('${id}')" class="text-xs bg-red-600/80 hover:bg-red-600 text-white px-3 py-1.5 rounded transition">Delete</button>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// 4. Obsługa wyskakującego okienka (Modal)
+// 4. Modal handling
 function openModal(appointment = null) {
     const form = document.getElementById('appointmentForm');
     if (form) form.reset();
@@ -115,14 +123,14 @@ function openModal(appointment = null) {
     document.getElementById('appointmentId').value = '';
 
     if (appointment) {
-        document.getElementById('modalTitle').innerText = 'Edytuj wizytę';
+        document.getElementById('modalTitle').innerText = 'Edit appointment';
         document.getElementById('appointmentId').value = appointment.id;
         document.getElementById('title').value = appointment.name || '';
         document.getElementById('appointmentDate').value = appointment.previousDate || '';
         document.getElementById('intervalValue').value = appointment.timePeriod > 0 ? appointment.timePeriod : 1;
         document.getElementById('timeUnit').value = appointment.timeUnit || 'MONTHS';
     } else {
-        document.getElementById('modalTitle').innerText = 'Dodaj nową wizytę';
+        document.getElementById('modalTitle').innerText = 'Add new appointment';
     }
 
     document.getElementById('appointmentModal').classList.remove('hidden');
@@ -132,14 +140,14 @@ function closeModal() {
     document.getElementById('appointmentModal').classList.add('hidden');
 }
 
-// 5. Zapisywanie wizyty (POST dla nowej, PUT dla edycji)
+// 5. Save an appointment (POST for new, PUT for edit)
 async function handleFormSubmit(e) {
     e.preventDefault();
     const token = getToken();
 
     const id = document.getElementById('appointmentId').value;
 
-    // Nazwy pól muszą się zgadzać z encją Appointment.java
+    // Field names must match the Appointment.java entity
     const payload = {
         name: document.getElementById('title').value,
         previousDate: document.getElementById('appointmentDate').value,
@@ -162,7 +170,7 @@ async function handleFormSubmit(e) {
 
         if (!res.ok) {
             const errorText = await res.text();
-            throw new Error(`Błąd (${res.status}): ${errorText || 'Nie udało się zapisać wizyty.'}`);
+            throw new Error(`Error (${res.status}): ${errorText || 'Failed to save the appointment.'}`);
         }
 
         closeModal();
@@ -172,15 +180,15 @@ async function handleFormSubmit(e) {
     }
 }
 
-// 6. Edycja i Usuwanie
+// 6. Edit and delete
 function editAppointment(id) {
-    // id to UUID (string), więc porównujemy jako string
+    // id is a UUID (string), so compare as strings
     const app = appointmentsData.find(a => String(a.id) === String(id));
     if (app) openModal(app);
 }
 
 async function deleteAppointment(id) {
-    if (!confirm('Czy na pewno chcesz usunąć tę wizytę?')) return;
+    if (!confirm('Are you sure you want to delete this appointment?')) return;
     const token = getToken();
 
     try {
@@ -192,6 +200,6 @@ async function deleteAppointment(id) {
         if (!res.ok) throw new Error();
         loadAppointments();
     } catch {
-        alert('Błąd podczas usuwania wizyty.');
+        alert('Error while deleting the appointment.');
     }
 }
