@@ -4,7 +4,7 @@ Note: This project is currently a Work In Progress. The core logic and API are i
 
 NextDate is a Spring Boot web application designed to help users efficiently track and manage recurring events, tasks, and appointments. The application automatically calculates the date of the next occurrence based on user-defined intervals (days, weeks, months, or years), acting as the single source of truth for your schedule.
 
----
+
 
 ## How to run
 Ensure you have the following tools installed on your system:
@@ -25,14 +25,18 @@ cd next-date
 ### 3. Build and Run
 In the same terminal (make sure you are inside the next-date directory), start the application and database containers in the background using Docker Compose:
 
-`docker-compose up -d --build`
+```
+docker-compose up -d --build
+```
 
 ### 4. Access the Application
 Once the containers are successfully running, the API will be accessible at:
 
-`http://localhost:8080`
+```
+http://localhost:8080
+```
 
----
+
 
 ## Features
 
@@ -46,7 +50,7 @@ Data Isolation: Users can only view and manage their own appointments.
 
 Dockerized: Ready to be deployed and run locally using Docker and Docker Compose.
 
----
+
 
 ## Tech Stack
 
