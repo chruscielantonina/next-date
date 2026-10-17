@@ -17,8 +17,10 @@ Launch Docker Desktop and verify that the engine is running and the status shows
 ### 2. Clone the Repository
 Open your terminal and execute the following commands to download the project and navigate into its directory:
 
-`git clone https://github.com/chruscielantonina/next-date
-cd next-date`
+```bash
+git clone https://github.com/chruscielantonina/next-date
+cd next-date
+```
 
 ### 3. Build and Run
 In the same terminal (make sure you are inside the next-date directory), start the application and database containers in the background using Docker Compose:
